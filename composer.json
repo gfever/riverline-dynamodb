@@ -22,7 +22,7 @@
             "homepage":"http://www.riverline.fr"
         }
     ],
-    "homepage": "https://github.com/rabelium/riverline-dynamodb",
+    "homepage": "https://github.com/Satoripop/riverline-dynamodb",
     "minimum-stability": "stable",
     "require":{
         "php":">=5.3.5",
