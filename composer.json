@@ -1,10 +1,18 @@
 {
-    "name":"riverline/dynamodb",
+    "name":"satoripop/dynamodb",
     "description":"Amazon WebService DynamoDB PHP object wrapper",
     "keywords":["dynamodb","aws","amazon"],
     "type":"library",
     "license":"MIT",
     "authors":[
+        {
+            "name":"Racem Zouaghi",
+            "email":"racem.zouaghi@satoripop.tn"
+        },
+        {
+            "name":"Satoripop Tunisie",
+            "homepage":"http://www.satoripop.com"
+        },
         {
             "name":"Romain Cambien",
             "email":"romain@riverline.fr"
@@ -14,7 +22,7 @@
             "homepage":"http://www.riverline.fr"
         }
     ],
-    "homepage": "https://github.com/rcambien/riverline-dynamodb",
+    "homepage": "https://github.com/rabelium/riverline-dynamodb",
     "minimum-stability": "stable",
     "require":{
         "php":">=5.3.5",
