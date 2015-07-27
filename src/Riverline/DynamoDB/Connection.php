@@ -508,9 +508,9 @@ class Connection
     {
         foreach ($responseItem as $name => $value) {
             list ($type, $value) = each($value);
-            $method = 'set' . $this->humanize($name);
-            if (method_exists($item, $method))
-                $item->$method($value);
+            $r = new \ReflectionProperty(get_class($item), $name);
+            $r->setAccessible(true);
+            $r->setValue($item, json_decode($value, true) ? json_decode($value, true) : $value);
         }
         return $item;
     }

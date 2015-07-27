@@ -41,6 +41,9 @@ class Attribute implements \IteratorAggregate
             case Type::NUMBER:
                 $value = (is_array($value) ? reset($value) : $value) + 0;
                 break;
+            case Type::_ARRAY:
+                $value = json_decode($value);
+                break;
             case Type::STRING_SET:
                 $value = array_map(function ($value) {
                     return strval($value);
@@ -58,7 +61,7 @@ class Attribute implements \IteratorAggregate
         }
 
         $this->value = $value;
-        $this->type = $type;
+        $this->type = in_array($type, array("array")) ? "S" : $type;
 
     }
 
@@ -128,9 +131,8 @@ class Attribute implements \IteratorAggregate
                 return strval($val);
             }, $this->getValue());
         } else {
-            $value = strval($this->getValue());
+            $value = is_array($this->getValue()) ? json_encode($this->getValue()) : strval($this->getValue());
         }
-
         return array($this->getType() => $value);
     }
 

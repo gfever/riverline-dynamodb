@@ -110,11 +110,13 @@ class Collection implements \IteratorAggregate, \Countable
                 $attribute = current($attributes);
                 $direction = strtoupper($criteria[$attribute]);
                 $order = function ($a, $b) use ($attribute, $direction) {
-                    if ($a[$attribute] == $b[$attribute]) {
+                    $p = new \ReflectionProperty(get_class($a), $attribute);
+                    $p->setAccessible(true);
+                    if ($p->getValue($a) == $p->getValue($b)) {
                         return 0;
                     }
                     $factor = ($direction == "ASC" ? 1 : -1);
-                    return ($a[$attribute] < $b[$attribute]) ? -$factor : $factor;
+                    return ($p->getValue($a) < $p->getValue($b)) ? -$factor : $factor;
                 };
                 usort($this->items, $order);
             } while (prev($attributes));
