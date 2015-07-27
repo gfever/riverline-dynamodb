@@ -36,25 +36,29 @@ class Attribute implements \IteratorAggregate
         // Normalize
         switch ($type) {
             case Type::STRING:
-                $value = strval($value);
+                $value = strval(is_array($value) ? reset($value) : $value);
                 break;
             case Type::NUMBER:
-                $value = $value+0;
+                $value = (is_array($value) ? reset($value) : $value) + 0;
                 break;
             case Type::STRING_SET:
-                $value = array_map(function ($value) { return strval($value);}, (array)$value);
+                $value = array_map(function ($value) {
+                    return strval($value);
+                }, (array)$value);
                 sort($value);
                 break;
             case Type::NUMBER_SET:
-                $value = array_map(function ($value) { return $value+0;}, (array)$value);
+                $value = array_map(function ($value) {
+                    return $value + 0;
+                }, (array)$value);
                 sort($value);
                 break;
             default:
-                throw new \Riverline\DynamoDB\Exception\AttributesException('Invalid type '.$type);
+                throw new \Riverline\DynamoDB\Exception\AttributesException('Invalid type ' . $type);
         }
 
         $this->value = $value;
-        $this->type  = $type;
+        $this->type = $type;
 
     }
 
@@ -64,7 +68,7 @@ class Attribute implements \IteratorAggregate
      */
     public function getValue()
     {
-        return $this->value;
+        return is_array($this->value) && count($this->value) <= 1 ? reset($this->value) : $this->value;
     }
 
     /**
@@ -120,7 +124,9 @@ class Attribute implements \IteratorAggregate
     public function getForDynamoDB()
     {
         if ($this->isArray()) {
-            $value = array_map(function ($val) { return strval($val); }, $this->getValue());
+            $value = array_map(function ($val) {
+                return strval($val);
+            }, $this->getValue());
         } else {
             $value = strval($this->getValue());
         }
@@ -136,13 +142,20 @@ class Attribute implements \IteratorAggregate
      */
     private function autoDetectType($value)
     {
-        if (is_array($value)) {
+        if (is_array($value) && count($value) > 1) {
             foreach ($value as $val) {
                 if (!is_numeric($val)) {
                     return Type::STRING_SET;
                 }
             }
             return Type::NUMBER_SET;
+        } elseif (is_array($value)) {
+            $val = reset($value);
+            if (is_string($val)) {
+                return Type::STRING;
+            } else {
+                return Type::NUMBER;
+            }
         } elseif (is_numeric($value)) {
             return Type::NUMBER;
         } else {
