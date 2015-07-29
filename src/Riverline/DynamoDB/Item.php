@@ -2,9 +2,6 @@
 
 namespace Riverline\DynamoDB;
 
-/**
- * @class
- */
 class Item implements \ArrayAccess, \IteratorAggregate
 {
     /**

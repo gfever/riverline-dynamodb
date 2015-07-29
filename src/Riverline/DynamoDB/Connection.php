@@ -286,7 +286,7 @@ class Connection
      * @param Context\Get|null $context The call context
      * @return Item|null
      */
-    public function get($table, $hash, $range = null, Context\Get $context = null)
+    public function get($table, $entity, $hash, $range = null, Context\Get $context = null)
     {
         if (null !== $this->logger) {
             $this->log('Get on table ' . $table);
@@ -325,8 +325,8 @@ class Connection
         $this->addConsumedReadUnits($table, floatval($response['ConsumedCapacityUnits']));
 
         if (isset($response['Item'])) {
-            $item = new Item($table);
-            $item->populateFromDynamoDB($response['Item']);
+            $item = new $entity();
+            $this->populateFromDynamoDB($item, $response['Item']);
             return $item;
         } else {
             if (null !== $this->logger) {

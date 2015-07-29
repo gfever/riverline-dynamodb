@@ -2,9 +2,6 @@
 
 namespace Riverline\DynamoDB;
 
-/**
- * @class
- */
 class Collection implements \IteratorAggregate, \Countable
 {
     /**
@@ -144,6 +141,15 @@ class Collection implements \IteratorAggregate, \Countable
     public function getRequestItems()
     {
         return $this->requestItems;
+    }
+
+    /**
+     * Get the collection items
+     * @return \array
+     */
+    public function getItems()
+    {
+        return $this->items;
     }
 
     /**

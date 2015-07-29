@@ -5,7 +5,6 @@ namespace Riverline\DynamoDB;
 use Aws\DynamoDb\Enum\Type;
 
 /**
- * @class
  * @todo Add Binary Type
  */
 class Attribute implements \IteratorAggregate
