@@ -3,9 +3,23 @@
 namespace Riverline\DynamoDB\Context;
 
 use \Riverline\DynamoDB\AttributeCondition;
+use Satoripop\DynamoDBBundle\Util\EntityRepository;
 
 class Scan extends Collection
 {
+    /**
+     * @var EntityRepository $repo
+     */
+    private $repo;
+
+    /**
+     * @param EntityRepository $repo
+     */
+    public function __construct(EntityRepository $repo = null)
+    {
+        $this->repo = $repo;
+    }
+
     /**
      * @var array
      */
@@ -41,11 +55,27 @@ class Scan extends Collection
     {
         $parameters = parent::getForDynamoDB();
 
-        foreach($this->filters as $name => $filter) {
+        foreach ($this->filters as $name => $filter) {
             /* @var $filter AttributeCondition */
             $parameters['ScanFilter'][$name] = $filter->getForDynamoDB();
         }
 
         return $parameters;
+    }
+
+    /**
+     * @return EntityRepository
+     */
+    public function getRepo()
+    {
+        return $this->repo;
+    }
+
+    /**
+     * @param EntityRepository $repo
+     */
+    public function setRepo(EntityRepository $repo)
+    {
+        $this->repo = $repo;
     }
 }

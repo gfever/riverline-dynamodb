@@ -3,6 +3,7 @@
 namespace Riverline\DynamoDB\Context;
 
 use \Riverline\DynamoDB\AttributeCondition;
+use Satoripop\DynamoDBBundle\Util\EntityRepository;
 
 class Query extends Collection
 {
@@ -15,6 +16,19 @@ class Query extends Collection
      * @var boolean
      */
     protected $scanIndexForward;
+
+    /**
+     * @var EntityRepository $repo
+     */
+    private $repo;
+
+    /**
+     * @param EntityRepository $repo
+     */
+    public function __construct(EntityRepository $repo = null)
+    {
+        $this->repo = $repo;
+    }
 
     /**
      * @param string $operator
@@ -72,5 +86,21 @@ class Query extends Collection
         $query->setRangeCondition($operator, $attributes);
 
         return $query;
+    }
+
+    /**
+     * @return EntityRepository
+     */
+    public function getRepo()
+    {
+        return $this->repo;
+    }
+
+    /**
+     * @param EntityRepository $repo
+     */
+    public function setRepo($repo)
+    {
+        $this->repo = $repo;
     }
 }

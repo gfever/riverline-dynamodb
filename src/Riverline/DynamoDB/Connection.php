@@ -2,10 +2,13 @@
 
 namespace Riverline\DynamoDB;
 
+use Doctrine\ORM\Mapping\ClassMetadata;
 use Satoripop\DynamoDBBundle\Util\DynamoPlatform;
 use Riverline\DynamoDB\Logger\Logger;
 
 use Aws\DynamoDb\DynamoDbClient;
+use Satoripop\DynamoDBBundle\Util\ParamConverter;
+use Satoripop\DynamoDBBundle\Util\UnitOfWork;
 
 /**
  * @class
@@ -27,6 +30,20 @@ class Connection
      * @var int
      */
     protected $readUnit = array(), $writeUnit = array();
+
+    /**
+     * @var ClassMetadata
+     *
+     * @api
+     */
+    protected $metadata;
+
+    /**
+     * @var UnitOfWork
+     *
+     * @api
+     */
+    protected $uow;
 
     /**
      * @param string $key The AWS access Key
@@ -51,6 +68,24 @@ class Connection
     public function fetchColumn($value)
     {
         return $value;
+    }
+
+    /**
+     * @param ClassMetadata $metadata
+     * @return $this
+     */
+    public function setMetadata(ClassMetadata $metadata)
+    {
+        $this->metadata = $metadata;
+        return $this;
+    }
+
+    /**
+     * @return ClassMetadata
+     */
+    public function getMetadata()
+    {
+        return $this->metadata;
     }
 
     public function getDatabasePlatform()
@@ -506,13 +541,38 @@ class Connection
 
     public function populateFromDynamoDB(&$item, array $responseItem)
     {
-        foreach ($responseItem as $name => $value) {
+        $metas = clone $this->getMetadata();
+        $cnv = new ParamConverter($metas, $this->getUow());
+        $response = $responseItem;
+        foreach ($response as $name => $value) {
             list ($type, $value) = each($value);
-            $r = new \ReflectionProperty(get_class($item), $name);
-            $r->setAccessible(true);
-            $r->setValue($item, json_decode($value, true) ? json_decode($value, true) : $value);
+            try {
+                if (in_array($name, $metas->getFieldNames()) || in_array($name, array_keys($metas->getAssociationMappings()))) {
+                    $r = new \ReflectionProperty(get_class($item), $name);
+                    $r->setAccessible(true);
+                    $r->setValue($item, $cnv->transform($name, $value));
+                }
+            } catch (\Exception $e) {
+                var_dump($e->getMessage()); die;
+            }
         }
         return $item;
+    }
+
+    /**
+     * @return UnitOfWork
+     */
+    public function getUow()
+    {
+        return $this->uow;
+    }
+
+    /**
+     * @param UnitOfWork $uow
+     */
+    public function setUow($uow)
+    {
+        $this->uow = $uow;
     }
 
     private function humanize($str)
