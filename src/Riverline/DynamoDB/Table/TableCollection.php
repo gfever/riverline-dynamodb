@@ -80,4 +80,12 @@ class TableCollection implements \IteratorAggregate, \Countable
     {
         return count($this->tables);
     }
+
+    /**
+     * @return array
+     */
+    public function toArray()
+    {
+        return $this->tables;
+    }
 }
