@@ -513,7 +513,7 @@ class Connection
 
         $items = $this->getScanCollection($response, $context);
 
-        return $this->populateItems($items, $entity);
+        return $this->populateItems($items, $entity, $table);
     }
 
     /**
@@ -522,12 +522,13 @@ class Connection
      * @param string $entity The item class
      * @return Collection
      */
-    public function populateItems($items, $entity)
+    public function populateItems($items, $entity, $table)
     {
-        if (!empty($requestItems = $items->getRequestItems())) {
+        $requestItems = $items->getRequestItems();
+        if (count($requestItems)) {
             foreach ($requestItems as $responseItem) {
                 $item = new $entity();
-                $this->populateFromDynamoDB($item, $responseItem);
+                $this->populateFromDynamoDB($item, $responseItem, $table);
                 $items->add($item);
             }
         }
@@ -539,22 +540,28 @@ class Connection
         return $items;
     }
 
-    public function populateFromDynamoDB(&$item, array $responseItem)
+    public function populateFromDynamoDB(&$item, array $responseItem, $table)
     {
-        $metas = clone $this->getMetadata();
-        $cnv = new ParamConverter($metas, $this->getUow());
-        $response = $responseItem;
-        foreach ($response as $name => $value) {
-            list ($type, $value) = each($value);
-            try {
-                if (in_array($name, $metas->getFieldNames()) || in_array($name, array_keys($metas->getAssociationMappings()))) {
-                    $r = new \ReflectionProperty(get_class($item), $name);
-                    $r->setAccessible(true);
-                    $r->setValue($item, $cnv->transform($name, $value));
+        if ($this->getMetadata()) {
+            $metas = clone $this->getMetadata();
+            $cnv = new ParamConverter($metas, $this->getUow());
+            $response = $responseItem;
+            foreach ($response as $name => $value) {
+                list ($type, $value) = each($value);
+                try {
+                    if (in_array($name, $metas->getFieldNames()) || in_array($name, array_keys($metas->getAssociationMappings()))) {
+                        $r = new \ReflectionProperty(get_class($item), $name);
+                        $r->setAccessible(true);
+                        $r->setValue($item, $cnv->transform($name, $value));
+                    }
+                } catch (\Exception $e) {
+                    var_dump($e->getMessage());
+                    die;
                 }
-            } catch (\Exception $e) {
-                var_dump($e->getMessage()); die;
             }
+        } else {
+            $item = new Item($table);
+            $item->populateFromDynamoDB($responseItem);
         }
         return $item;
     }
