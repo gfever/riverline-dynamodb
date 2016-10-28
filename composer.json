@@ -1,5 +1,5 @@
 {
-    "name":"satoripop/dynamodb",
+    "name":"gfever/dynamodb",
     "description":"Amazon WebService DynamoDB PHP object wrapper",
     "keywords":["dynamodb","aws","amazon"],
     "type":"library",
@@ -22,7 +22,7 @@
             "homepage":"http://www.riverline.fr"
         }
     ],
-    "homepage": "https://github.com/Satoripop/riverline-dynamodb",
+    "homepage": "https://github.com/gfever/riverline-dynamodb",
     "minimum-stability": "stable",
     "require":{
         "php":">=5.3.5",
